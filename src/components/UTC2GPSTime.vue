@@ -65,7 +65,7 @@ export default {
             const unixStartDate = new Date(Date.UTC(1970, 0, 1))
             const yearStartDate = new Date(Date.UTC(newUtcYear, 0, 1))
 
-            if (newUtcYear > 1980){
+            if (newUtcYear > 1980 && newUtcDay > 1){
                 const newDate = new Date(yearStartDate - unixStartDate + (newUtcDay - 1) * msInOneDay)
                 selectedDate.value = newDate.toISOString().slice(0, 10)
             }
