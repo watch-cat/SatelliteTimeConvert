@@ -5,9 +5,9 @@
         <input type="date" min="1980-01-06" v-model="selectedDate">
         <div>
             输入的日期为：
-            <span class="result-text">{{utcYear}}</span>
+            <input class="number-input" type="number" min="1980" v-model="utcYear">
             年第
-            <span class="result-text">{{utcDay}}</span>
+            <input class="number-input" type="number" min="1" max="366" v-model="utcDay">
             天
         </div>
     </div>
@@ -16,9 +16,11 @@
         <h3>GPS时间系统</h3>
         <div>
             对应的GPS时间为：第
-            <span class="result-text">{{gpsWeek}}</span>
+            <input class="number-input" type="number" min="0" v-model="gpsWeek">
+<!--            <span class="result-text">{{gpsWeek}}</span>-->
             周第
-            <span class="result-text">{{gpsDay}}</span>
+            <input class="number-input" type="number" min="0" max="6" v-model="gpsDay">
+<!--            <span class="result-text">{{gpsDay}}</span>-->
             天
         </div>
     </div>
@@ -56,6 +58,29 @@ export default {
                 gpsWeek.value = getGPSWeekDay(year, month, day).weekOfGPS
                 gpsDay.value = getGPSWeekDay(year, month, day).dayOfGPS2
             }
+        })
+
+        watch([utcYear, utcDay], ([newUtcYear, newUtcDay]) => {
+            const msInOneDay = 1000*60*60*24
+            const unixStartDate = new Date(Date.UTC(1970, 0, 1))
+            const yearStartDate = new Date(Date.UTC(newUtcYear, 0, 1))
+
+            if (newUtcYear > 1980){
+                const newDate = new Date(yearStartDate - unixStartDate + (newUtcDay - 1) * msInOneDay)
+                selectedDate.value = newDate.toISOString().slice(0, 10)
+            }
+        })
+
+        watch([gpsWeek, gpsDay], ([newGpsWeek, newGpsDay]) => {
+            const msInOneWeek = 1000*60*60*24*7
+            const msInOneDay = 1000*60*60*24
+            const gpsStartDate = new Date(Date.UTC(1980, 0, 6))
+            const unixStartDate = new Date(Date.UTC(1970, 0, 1))
+
+            const newDate = new Date(gpsStartDate - unixStartDate + newGpsWeek * msInOneWeek + newGpsDay * msInOneDay)
+
+            selectedDate.value = newDate.toISOString().slice(0, 10)
+            //console.log(gpsStartDate + Math.trunc(newGpsWeek * msInOneWeek + newGpsDay * msInOneDay) + ' ' + newGpsWeek + newGpsDay)
         })
 
         function setCurrentDate(){
@@ -115,6 +140,10 @@ export default {
     font-family: 'Comic Sans MS', cursive;
     font-weight: bold;
     font-size: 18px;
+}
+
+.number-input{
+    width: 60px;
 }
 
 h3 {
